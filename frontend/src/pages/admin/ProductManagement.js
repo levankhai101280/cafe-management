@@ -26,10 +26,10 @@ const handleAuthError = (error, navigate, showMessage) => {
 };
 
 // CẬP NHẬT CÁC HẰNG SỐ API
-const API_PRODUCTS_PUBLIC = "http://localhost:8080/api/products"; // Dùng để hiển thị ảnh, không cần Token
-const API_ADMIN_PRODUCTS = "http://localhost:8080/api/admin/products"; // Dùng cho DELETE
-const API_UPLOAD = "http://localhost:8080/api/admin/products/upload"; // Dùng cho POST
-const API_CATEGORIES = "http://localhost:8080/api/admin/categories"; // Dùng cho Admin
+const API_PRODUCTS_PUBLIC = "/api/products"; // Dùng để hiển thị ảnh, không cần Token
+const API_ADMIN_PRODUCTS = "/api/admin/products"; // Dùng cho DELETE
+const API_UPLOAD = "/api/admin/products/upload"; // Dùng cho POST
+const API_CATEGORIES = "/api/admin/categories"; // Dùng cho Admin
 
 export default function ProductManagement() {
   const [products, setProducts] = useState([]);
@@ -305,7 +305,7 @@ export default function ProductManagement() {
               <tr key={p.id}>
                 <td style={tdStyle}>
                   <img
-                    src={`http://localhost:8080${p.imageUrl}`}
+                    src={`http://18.234.214.71:8081${p.imageUrl}`}
                     alt={p.name}
                     style={productImageStyle}
                   />
