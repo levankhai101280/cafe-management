@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom'; // Dùng để lấy ID từ URL
 
 // API Public để lấy chi tiết sản phẩm theo ID
-const API_PRODUCT_BASE = 'http://localhost:8080/api/products'; 
+const API_PRODUCT_BASE = '/api/products'; 
 
 export default function ProductDetailPage() {
     const { id } = useParams(); // Lấy 'id' từ URL (ví dụ: /products/123)
@@ -49,7 +49,7 @@ export default function ProductDetailPage() {
             <div style={detailContainerStyle}>
                 <div style={imageColStyle}>
                     <img 
-                        src={product.imageUrl ? `http://localhost:8080${product.imageUrl}` : "https://via.placeholder.com/400x300?text=No+Image"} 
+                        src={product.imageUrl ? `http://18.234.214.71:8081${product.imageUrl}` : "https://via.placeholder.com/400x300?text=No+Image"} 
                         alt={product.name} 
                         style={productImageStyle}
                     />

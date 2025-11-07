@@ -3,9 +3,9 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 // CẬP NHẬT CÁC HẰNG SỐ API
-const API_ADMIN_TABLES = 'http://localhost:8080/api/admin/tables';
-const API_ADMIN = 'http://localhost:8080/api/admin';      
-const API_ORDERS = 'http://localhost:8080/api/orders';    
+const API_ADMIN_TABLES = '/api/admin/tables';
+const API_ADMIN = '/api/admin';      
+const API_ORDERS = '/api/orders';    
 
 // HÀM TIỆN ÍCH CHO JWT
 const getAuthHeader = () => {

@@ -22,7 +22,7 @@ export default function SearchPage() {
     setLoading(true);
     try {
       const res = await axios.get(
-        `http://localhost:8080/api/products/search?name=${encodeURIComponent(keyword)}`
+        `/api/products/search?name=${encodeURIComponent(keyword)}`
       );
       setProducts(res.data);
       setMessage(
@@ -55,7 +55,7 @@ export default function SearchPage() {
                 <img
                   src={
                     p.imageUrl
-                      ? `http://localhost:8080${p.imageUrl}`
+                      ? `http://18.234.214.71:8081${p.imageUrl}`
                       : "https://via.placeholder.com/200x150?text=No+Image"
                   }
                   alt={p.name}
