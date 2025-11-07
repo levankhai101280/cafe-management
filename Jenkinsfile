@@ -4,6 +4,11 @@ pipeline {
     environment {
         PROJECT_NAME = "cafe-system"
         COMPOSE_PATH = "./docker-compose.yml"
+        
+        // Tên services trong file docker-compose.yml của bạn
+        // Sửa lại nếu tên không đúng
+        BACKEND_SERVICE = "backend-app"
+        FRONTEND_SERVICE = "frontend-app"
     }
 
     stages {
@@ -14,24 +19,34 @@ pipeline {
             }
         }
 
+        /* * ĐÃ SỬA: Chia 'docker compose build' thành 2 bước riêng biệt
+         * để build tuần tự, tránh bị hết RAM (Out of Memory) trên t3.micro
+         */
         stage('Build Docker Images') {
             steps {
                 echo "⚙️ Building Docker images..."
-                sh 'docker compose -f $COMPOSE_PATH build'
+                
+                echo "1/2 - Building Backend Service (${BACKEND_SERVICE})..."
+                sh "docker compose -f ${COMPOSE_PATH} build ${BACKEND_SERVICE}"
+                
+                echo "2/2 - Building Frontend Service (${FRONTEND_SERVICE})..."
+                sh "docker compose -f ${COMPOSE_PATH} build ${FRONTEND_SERVICE}"
             }
         }
 
         stage('Stop Old Containers') {
             steps {
                 echo "🧹 Stopping old containers..."
-                sh 'docker compose -f $COMPOSE_PATH down'
+                // Dùng --ignore-orphans để tránh lỗi nếu service không tồn tại
+                sh "docker compose -f ${COMPOSE_PATH} down --ignore-orphans"
             }
         }
 
         stage('Start New Containers') {
             steps {
                 echo "🚀 Starting new containers..."
-                sh 'docker compose -f $COMPOSE_PATH up -d'
+                // Chỉ 'up' các service đã được build để tiết kiệm thời gian
+                sh "docker compose -f ${COMPOSE_PATH} up -d ${BACKEND_SERVICE} ${FRONTEND_SERVICE}"
             }
         }
 
