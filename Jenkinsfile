@@ -38,7 +38,7 @@ pipeline {
             steps {
                 echo "🧹 Stopping old containers..."
                 // Dùng --ignore-orphans để tránh lỗi nếu service không tồn tại
-                sh "docker compose -f ${COMPOSE_PATH} down --ignore-orphans"
+                sh "docker compose -f ${COMPOSE_PATH} down "
             }
         }
 
