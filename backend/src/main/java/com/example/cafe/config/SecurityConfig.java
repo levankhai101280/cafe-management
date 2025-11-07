@@ -46,43 +46,41 @@ public class SecurityConfig {
     public SecurityConfig() {
         System.out.println("SecurityConfig CONSTRUCTOR ĐÃ CHẠY!"); // Thêm log
     }
-    
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize -> authorize
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(AbstractHttpConfigurer::disable)
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(authorize -> authorize
+                // TĂNG CƯỜNG BẢO VỆ: Đặt API đặt hàng lên đầu tiên để đảm bảo tính ưu tiên.
+                .requestMatchers("/api/orders/place").authenticated()
 
-                        // TĂNG CƯỜNG BẢO VỆ: Đặt API đặt hàng lên đầu tiên để đảm bảo tính ưu tiên.
-                        .requestMatchers("/api/orders/place").authenticated()
+                // =======================================================
+                // 1. PUBLIC APIs (KHÔNG CẦN BẢO VỆ)
+                // =======================================================
+                .requestMatchers("/api/auth/**", "/api/products", "/api/products/search", "/api/products/{id}").permitAll()
+                .requestMatchers("/api/user/tables/available").permitAll()
 
-                        // =======================================================
-                        // 1. PUBLIC APIs (KHÔNG CẦN BẢO VỆ)
-                        // =======================================================
-                        .requestMatchers("/api/auth/**", "/api/products", "/api/products/search", "/api/products/{id}").permitAll()
-                        .requestMatchers("/api/user/tables/available").permitAll()
+                // TĂNG CƯỜNG BẢO MẬT: Giữ lại chỉ các đường dẫn tĩnh cụ thể.
+                .requestMatchers("/images/**", "/uploads/**").permitAll()
+                // Loại bỏ "/*.png", "/*.jpg", v.v. vì /images/** là đủ nếu bạn phục vụ ảnh đúng cách.
 
-                        // TĂNG CƯỜNG BẢO MẬT: Giữ lại chỉ các đường dẫn tĩnh cụ thể.
-                        .requestMatchers("/images/**", "/uploads/**").permitAll()
-                        // Loại bỏ "/*.png", "/*.jpg", v.v. vì /images/** là đủ nếu bạn phục vụ ảnh đúng cách.
+                .requestMatchers("/h2-console/**").permitAll()
 
-                        .requestMatchers("/h2-console/**").permitAll()
+                // =======================================================
+                // 2. PROTECTED APIs
+                // =======================================================
+                .requestMatchers("/api/admin/**", "/api/orders/report/daily", "/api/orders/{orderId}/pay").hasRole("ROOT_USER")
 
-                        // =======================================================
-                        // 2. PROTECTED APIs
-                        // =======================================================
-                        .requestMatchers("/api/admin/**", "/api/orders/report/daily", "/api/orders/{orderId}/pay")
-                        .hasRole("ROOT_USER")
+                // User APIs còn lại (API user khác ngoại trừ đặt bàn)
+                .requestMatchers("/api/user/**").authenticated()
 
-                        // User APIs còn lại (API user khác ngoại trừ đặt bàn)
-                        .requestMatchers("/api/user/**").authenticated()
-
-                        // Mọi request còn lại đều cần xác thực
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                // Mọi request còn lại đều cần xác thực
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));
 
@@ -92,7 +90,16 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+
+        // ======================= ĐÃ SỬA LỖI Ở ĐÂY =======================
+        // Đổi từ "singletonList" (chỉ 1) thành "Arrays.asList" (nhiều)
+        // Và thêm IP máy chủ của bạn vào
+        configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:3000",
+            "http://18.234.214.71:3000" // <--- THÊM DÒNG NÀY
+        ));
+        // =================================================================
+
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setAllowCredentials(true);
