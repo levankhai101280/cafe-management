@@ -17,21 +17,21 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 echo "⚙️ Building Docker images..."
-                sh 'docker-compose -f $COMPOSE_PATH build'
+                sh 'docker compose -f $COMPOSE_PATH build'
             }
         }
 
         stage('Stop Old Containers') {
             steps {
                 echo "🧹 Stopping old containers..."
-                sh 'docker-compose -f $COMPOSE_PATH down'
+                sh 'docker compose -f $COMPOSE_PATH down'
             }
         }
 
         stage('Start New Containers') {
             steps {
                 echo "🚀 Starting new containers..."
-                sh 'docker-compose -f $COMPOSE_PATH up -d'
+                sh 'docker compose -f $COMPOSE_PATH up -d'
             }
         }
 
