@@ -12,7 +12,7 @@ function LoginPage({ login }) {
     e.preventDefault();
     setError('');
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/login', { username, password });
+      const response = await axios.post('/api/auth/login', { username, password });
       
       // 🚨 ĐÃ SỬA: Xử lý response JSON có JWT Token và thông tin user
       const { token, userId, role } = response.data;

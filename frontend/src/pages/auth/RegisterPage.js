@@ -12,7 +12,7 @@ function RegisterPage() {
     e.preventDefault();
     setMessage('');
     try {
-      const response = await axios.post('http://localhost:8080/api/auth/register', { username, password });
+      const response = await axios.post('/api/auth/register', { username, password });
       
       // 🚨 ĐÃ SỬA: Dùng trực tiếp message từ backend
       setMessage(`${response.data}. Bạn sẽ được chuyển đến trang đăng nhập.`);
