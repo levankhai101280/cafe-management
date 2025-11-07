@@ -7,7 +7,7 @@ services:
     container_name: cafe-backend
     ports:
       # Mở cổng 8080 (hoặc cổng server.port bạn đặt)
-      - "8080:8080" 
+      - "8081:8080" 
     volumes:
       # QUAN TRỌNG: Mount 2 volumes
       # 1. Ánh xạ volume 'h2-data' vào thư mục /app/data bên trong container
