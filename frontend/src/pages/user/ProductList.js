@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import "../../styles/ProductList.css";
 
 // 🚨 SỬA LỖI: Dùng API Public để Khách xem Menu
-const API_PRODUCTS = "http://localhost:8080/api/products"; 
+const API_PRODUCTS = "/api/products"; 
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
@@ -38,7 +38,7 @@ export default function ProductList() {
                       <img
                         src={
                             p.imageUrl
-                            ? `http://localhost:8080${p.imageUrl}`
+                            ? `http://18.234.214.71:8081${p.imageUrl}`
                             : "https://via.placeholder.com/200x150?text=No+Image"
                         }
                         alt={p.name}
