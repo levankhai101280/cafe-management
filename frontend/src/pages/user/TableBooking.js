@@ -5,9 +5,9 @@ import ProductList from './ProductList';
 import Footer from '../../components/Footer';
 import "../../styles/TableBooking.css";
 
-const API_TABLES = 'http://localhost:8080/api/user/tables/available';
-const API_PRODUCTS = 'http://localhost:8080/api/products'; // 👈 Dùng API PUBLIC
-const API_PLACE_ORDER = 'http://localhost:8080/api/orders/place'; // API PROTECTED
+const API_TABLES = '/api/user/tables/available';
+const API_PRODUCTS = '/api/products'; // 👈 Dùng API PUBLIC
+const API_PLACE_ORDER = '/api/orders/place'; // API PROTECTED
 
 // HÀM TIỆN ÍCH CHO JWT VÀ USER (Đã dùng ở các file admin)
 const getAuthUser = () => {
