@@ -1,0 +1,36 @@
+services:
+  # 1. Dịch vụ Backend (Spring Boot / IntelliJ)
+  backend-app:
+    build:
+      context: ./backend    # Đường dẫn đến thư mục backend
+      dockerfile: Dockerfile
+    container_name: cafe-backend
+    ports:
+      # Mở cổng 8080 (hoặc cổng server.port bạn đặt)
+      - "8080:8080" 
+    volumes:
+      # QUAN TRỌNG: Mount 2 volumes
+      # 1. Ánh xạ volume 'h2-data' vào thư mục /app/data bên trong container
+      #    (Vì H2 của bạn lưu file ở: ./data/cafedb)
+      - h2-data:/app/data
+      
+      # 2. Ánh xạ volume 'uploads-data' vào thư mục /app/uploads
+      #    (Vì app.upload.dir của bạn là: uploads)
+      - uploads-data:/app/uploads
+    # KHÔNG CẦN 'depends_on' database nữa
+
+  # 2. Dịch vụ Frontend (React)
+  frontend-app:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cafe-frontend
+    ports:
+      - "3000:80" # Mở cổng 3000
+    depends_on:
+      - backend-app # Đợi backend khởi động trước
+
+# Định nghĩa volumes để Docker quản lý
+volumes:
+  h2-data: {}      # Volume để lưu file database H2
+  uploads-data: {} # Volume để lưu file upload
