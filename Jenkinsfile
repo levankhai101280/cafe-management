@@ -28,14 +28,16 @@ pipeline {
             steps {
                 echo "2. ⚙️ Building Backend (Maven) and Frontend (NPM)..."
                 
-                // ⭐️ FIX LỖI: CẤP QUYỀN THỰC THI CHO MAVEN WRAPPER ⭐️
+                // 1. Cấp quyền và Build Backend
                 sh 'chmod +x backend/mvnw' 
-                
-                // Biên dịch Backend: Tạo file JAR
                 sh 'cd backend && ./mvnw clean install -DskipTests' 
                 
-                // Build Frontend: Tạo thư mục build/static files
-                sh 'cd frontend && npm install && npm run build'
+                // ⭐️ 2. SỬ DỤNG DOCKER IMAGE NODE ĐỂ BUILD FRONTEND ⭐️
+                // Thay vì chạy npm trực tiếp trên Jenkins Agent, chạy trong Container Node
+                docker.image('node:18-alpine').inside { // <-- Node 18 có sẵn NPM
+                    sh 'cd frontend && npm install'
+                    sh 'cd frontend && npm run build'
+                }
             }
         }
 
