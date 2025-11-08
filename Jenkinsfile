@@ -29,22 +29,21 @@ pipeline {
         }
 
         stage('Build & Package') {
-            // ⭐️ XÓA HOÀN TOÀN KHỐI TOOLS NÀY ĐI ⭐️
-            // tools {
-            //     nodejs 'NodeJS 20' 
-            // }
             steps {
                 echo "2. ⚙️ Building Backend (Maven) and Frontend (NPM)..."
                 
-                // 1. Cấp quyền và Build Backend
+                // 1. Cấp quyền và Build Backend (Đã thành công)
                 sh 'chmod +x backend/mvnw' 
                 sh 'cd backend && ./mvnw clean install -DskipTests' 
                 
-                // ⭐️ 2. FIX LỖI: CHẠY NPM BẰNG TOOL CHÍNH XÁC (nếu bạn đã cài NodeJS Plugin) ⭐️
-                // Nếu bạn đã cài NodeJS Plugin, phương thức này sẽ hoạt động:
-                sh "node -v" // Kiểm tra xem Node có hoạt động không
-                sh 'cd frontend && npm install'
-                sh 'cd frontend && npm run build'
+                echo "2A. Building Frontend using Node container..."
+                
+                // ⭐️ FIX LỖI: SỬ DỤNG CÔNG CỤ DOCKER CHO FRONTEND ⭐️
+                // Cú pháp này an toàn và đảm bảo npm luôn có sẵn
+                docker.image('node:18-alpine').inside('-u root') { // Chạy build trong container Node
+                    sh 'cd frontend && npm install'
+                    sh 'cd frontend && npm run build'
+                }
             }
         }
 
