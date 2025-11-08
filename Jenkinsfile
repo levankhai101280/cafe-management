@@ -29,18 +29,20 @@ pipeline {
         }
 
         stage('Build & Package') {
-            // Cần Node.js 18 đã được cấu hình trong Global Tool Configuration
-            tools {
-                nodejs 'NodeJS 20' // Thay thế bằng tên bạn đặt
-            }
+            // ⭐️ XÓA HOÀN TOÀN KHỐI TOOLS NÀY ĐI ⭐️
+            // tools {
+            //     nodejs 'NodeJS 20' 
+            // }
             steps {
                 echo "2. ⚙️ Building Backend (Maven) and Frontend (NPM)..."
                 
-                // ⭐️ 2A. FIX LỖI QUYỀN VÀ BUILD BACKEND ⭐️
-                sh 'chmod +x backend/mvnw' // Cấp quyền thực thi
+                // 1. Cấp quyền và Build Backend
+                sh 'chmod +x backend/mvnw' 
                 sh 'cd backend && ./mvnw clean install -DskipTests' 
                 
-                // 2B. BUILD FRONTEND
+                // ⭐️ 2. FIX LỖI: CHẠY NPM BẰNG TOOL CHÍNH XÁC (nếu bạn đã cài NodeJS Plugin) ⭐️
+                // Nếu bạn đã cài NodeJS Plugin, phương thức này sẽ hoạt động:
+                sh "node -v" // Kiểm tra xem Node có hoạt động không
                 sh 'cd frontend && npm install'
                 sh 'cd frontend && npm run build'
             }
