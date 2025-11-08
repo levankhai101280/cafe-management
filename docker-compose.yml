@@ -1,23 +1,22 @@
+version: '3.9'
+
 services:
-  # 1. Dịch vụ Backend (Spring Boot / IntelliJ)
+  # 1. Dịch vụ Backend (Spring Boot)
   backend-app:
     build:
-      context: ./backend    # Đường dẫn đến thư mục backend
+      context: ./backend
       dockerfile: Dockerfile
     container_name: cafe-backend
     ports:
-      # Mở cổng 8080 (hoặc cổng server.port bạn đặt)
-      - "8081:8080" 
+      - "8081:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://cafe-management-db.cgxuk446ys3r.us-east-1.rds.amazonaws.com:3306/cafe-management-db?serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: admin
+      SPRING_DATASOURCE_PASSWORD: 0931643765
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      APP_UPLOAD_DIR: uploads
     volumes:
-      # QUAN TRỌNG: Mount 2 volumes
-      # 1. Ánh xạ volume 'h2-data' vào thư mục /app/data bên trong container
-      #    (Vì H2 của bạn lưu file ở: ./data/cafedb)
-      - h2-data:/app/data
-      
-      # 2. Ánh xạ volume 'uploads-data' vào thư mục /app/uploads
-      #    (Vì app.upload.dir của bạn là: uploads)
       - uploads-data:/app/uploads
-    # KHÔNG CẦN 'depends_on' database nữa
 
   # 2. Dịch vụ Frontend (React)
   frontend-app:
@@ -26,11 +25,10 @@ services:
       dockerfile: Dockerfile
     container_name: cafe-frontend
     ports:
-      - "3000:80" # Mở cổng 3000
+      - "3000:80"
     depends_on:
-      - backend-app # Đợi backend khởi động trước
+      - backend-app
 
-# Định nghĩa volumes để Docker quản lý
+# Định nghĩa volumes
 volumes:
-  h2-data: {}      # Volume để lưu file database H2
-  uploads-data: {} # Volume để lưu file upload
+  uploads-data: {}
