@@ -10,11 +10,11 @@ services:
     ports:
       - "8081:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://cafe-management-db.cgxuk446ys3r.us-east-1.rds.amazonaws.com:3306/cafe-management-db?serverTimezone=UTC
-      SPRING_DATASOURCE_USERNAME: admin
-      SPRING_DATASOURCE_PASSWORD: 0931643765
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      APP_UPLOAD_DIR: uploads
+      - SPRING_DATASOURCE_URL=jdbc:mysql://cafe-management-db.cgxuk446ys3r.us-east-1.rds.amazonaws.com:3306/cafe_management_db?useSSL=false&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=0931643765
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - APP_UPLOAD_DIR=uploads
     volumes:
       - uploads-data:/app/uploads
 
