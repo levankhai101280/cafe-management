@@ -31,7 +31,7 @@ pipeline {
         stage('Build & Package') {
             // Cần Node.js 18 đã được cấu hình trong Global Tool Configuration
             tools {
-                nodejs 'NodeJS 18' // Thay thế bằng tên bạn đặt
+                nodejs 'NodeJS 20' // Thay thế bằng tên bạn đặt
             }
             steps {
                 echo "2. ⚙️ Building Backend (Maven) and Frontend (NPM)..."
