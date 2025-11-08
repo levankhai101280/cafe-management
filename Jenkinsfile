@@ -32,17 +32,18 @@ pipeline {
             steps {
                 echo "2. ⚙️ Building Backend (Maven) and Frontend (NPM)..."
                 
-                // 1. Cấp quyền và Build Backend (Đã thành công)
+                // 1. Build backend (Maven)
                 sh 'chmod +x backend/mvnw' 
                 sh 'cd backend && ./mvnw clean install -DskipTests' 
                 
                 echo "2A. Building Frontend using Node container..."
-                
-                // ⭐️ FIX LỖI: SỬ DỤNG CÔNG CỤ DOCKER CHO FRONTEND ⭐️
-                // Cú pháp này an toàn và đảm bảo npm luôn có sẵn
-                docker.image('node:18-alpine').inside('-u root') { // Chạy build trong container Node
-                    sh 'cd frontend && npm install'
-                    sh 'cd frontend && npm run build'
+
+                // ✅ Dùng script block để gọi docker.image()
+                script {
+                    docker.image('node:18-alpine').inside('-u root') {
+                        sh 'cd frontend && npm install'
+                        sh 'cd frontend && npm run build'
+                    }
                 }
             }
         }
