@@ -1,0 +1,4 @@
+Mật khẩu
+db instance: cafe-management-db
+username: admin
+pass: 0931643765

@@ -1,69 +1,114 @@
 pipeline {
+    // Chạy trên Jenkins Agent có Docker và Maven/Node
     agent any
 
     environment {
-        PROJECT_NAME = "cafe-system"
-        COMPOSE_PATH = "./docker-compose.yml"
+        // Thay thế bằng ID tài khoản AWS và Region của bạn
+        AWS_ACCOUNT_ID = 'YOUR_AWS_ACCOUNT_ID' 
+        AWS_REGION = 'us-east-1' 
+        ECR_REPO = "cafe-management-repo" // Tên Repository trong ECR
+        ECR_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
         
-        // Tên services trong file docker-compose.yml của bạn
-        // Sửa lại nếu tên không đúng
-        BACKEND_SERVICE = "backend-app"
-        FRONTEND_SERVICE = "frontend-app"
+        // Thông tin Server AWS EC2/Target Deploy
+        TARGET_USER = 'ec2-user' 
+        TARGET_HOST = '18.234.214.71' // IP Server Deploy của bạn
+        SSH_CREDENTIALS_ID = 'aws-ssh-key' // ID Credentials SSH trong Jenkins
     }
 
     stages {
         stage('Checkout') {
             steps {
-                echo "🔄 Cloning source code..."
+                echo "1. 💾 Cloning source code..."
+                // Sửa lại URL GitHub của bạn nếu cần
                 git branch: 'main', url: 'https://github.com/levankhai101280/cafe-management.git'
             }
         }
 
-        /* * ĐÃ SỬA: Chia 'docker compose build' thành 2 bước riêng biệt
-         * để build tuần tự, tránh bị hết RAM (Out of Memory) trên t3.micro
-         */
-        stage('Build Docker Images') {
+        stage('Build & Package') {
             steps {
-                echo "⚙️ Building Docker images..."
-                
-                echo "1/2 - Building Backend Service (${BACKEND_SERVICE})..."
-                sh "docker compose -f ${COMPOSE_PATH} build ${BACKEND_SERVICE}"
-                
-                echo "2/2 - Building Frontend Service (${FRONTEND_SERVICE})..."
-                sh "docker compose -f ${COMPOSE_PATH} build ${FRONTEND_SERVICE}"
+                echo "2. ⚙️ Building Backend (Maven) and Frontend (NPM)..."
+                // Biên dịch Backend: Tạo file JAR
+                sh 'cd backend && ./mvnw clean install -DskipTests' 
+                // Build Frontend: Tạo thư mục build/static files
+                sh 'cd frontend && npm install && npm run build'
             }
         }
 
-        stage('Stop Old Containers') {
+        stage('Login to AWS ECR') {
             steps {
-                echo "🧹 Stopping old containers..."
-                // Dùng --ignore-orphans để tránh lỗi nếu service không tồn tại
-                sh "docker compose -f ${COMPOSE_PATH} down "
+                echo "3. 🔑 Logging into AWS ECR..."
+                // SỬ DỤNG CREDENTIALS JENKINS để đăng nhập Docker vào ECR
+                withAWS(credentials: 'jenkins-aws-credentials', region: env.AWS_REGION) {
+                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URI}"
+                }
             }
         }
 
-        stage('Start New Containers') {
+        stage('Docker Build, Tag & Push') {
             steps {
-                echo "🚀 Starting new containers..."
-                // Chỉ 'up' các service đã được build để tiết kiệm thời gian
-                sh "docker compose -f ${COMPOSE_PATH} up -d ${BACKEND_SERVICE} ${FRONTEND_SERVICE}"
+                echo "4. 📦 Building and pushing images..."
+                
+                // Build Backend Image (Sử dụng JAR mới nhất)
+                sh "docker build -t ${ECR_REPO}/backend:latest ./backend"
+                // Build Frontend Image (Sử dụng Nginx/files build)
+                sh "docker build -t ${ECR_REPO}/frontend:latest ./frontend"
+                
+                // Tag Images
+                sh "docker tag ${ECR_REPO}/backend:latest ${ECR_URI}/backend:latest"
+                sh "docker tag ${ECR_REPO}/frontend:latest ${ECR_URI}/frontend:latest"
+
+                // Push Images lên AWS ECR
+                sh "docker push ${ECR_URI}/backend:latest"
+                sh "docker push ${ECR_URI}/frontend:latest"
+                echo "Push completed successfully to ECR."
+            }
+        }
+
+        stage('Deploy via SSH to AWS Server') {
+            agent { 
+                // Yêu cầu Jenkins Agent có khả năng SSH
+                label 'docker' // Hoặc tên agent của bạn
+            }
+            steps {
+                // SỬ DỤNG SSH Agent để kết nối Server (Termius SSH script)
+                withCredentials([sshUserPrivateKey(credentialsId: env.SSH_CREDENTIALS_ID, keyFileVariable: 'SSH_KEY')]) {
+                    echo "5. 🚀 Deploying and restarting services on ${TARGET_HOST}..."
+                    
+                    // Sử dụng SH script để kết nối và chạy lệnh từ xa
+                    sh """
+                        ssh -i ${SSH_KEY} ${TARGET_USER}@${TARGET_HOST} "
+                            # 1. Login Docker vào ECR trên server từ xa
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URI}
+                            
+                            # 2. Kéo image mới nhất (Sẽ tải từ ECR)
+                            docker pull ${ECR_URI}/backend:latest
+                            docker pull ${ECR_URI}/frontend:latest
+
+                            # 3. Chạy lại Docker Compose (SỬ DỤNG FILE DOCKER-COMPOSE TẠI SERVER)
+                            cd /home/${TARGET_USER}/app/cafe-management-project/ 
+                            docker compose -f docker-compose.yml down
+                            docker compose -f docker-compose.yml up -d
+                        "
+                    """
+                }
             }
         }
 
         stage('Verify Deployment') {
             steps {
-                echo "🔍 Checking running containers..."
-                sh 'docker ps'
+                echo "6. 🔍 Checking running containers on target server..."
+                // Kiểm tra trạng thái của ứng dụng trên server EC2 từ xa
+                sh "ssh -i \$(eval echo \${SSH_KEY}) ${TARGET_USER}@${TARGET_HOST} 'docker ps'"
             }
         }
     }
 
     post {
         success {
-            echo '✅ CI/CD pipeline completed successfully!'
+            echo "✅ CI/CD Pipeline to ${TARGET_HOST} completed successfully!"
         }
         failure {
-            echo '❌ Pipeline failed! Check logs in Jenkins.'
+            echo "❌ Pipeline failed! Deployment rollback may be needed."
         }
     }
 }
