@@ -25,6 +25,11 @@ pipeline {
         }
 
         stage('Build & Package') {
+            // ⭐️ KHAI BÁO CÔNG CỤ (TOOL) CẦN THIẾT ⭐️
+            tools {
+                // Đảm bảo bạn đã cấu hình Node.js 18.x (hoặc 20.x) trong Jenkins Global Tool Configuration
+                nodejs 'NodeJS 18' // Thay thế 'NodeJS 18' bằng tên bạn đặt trong Jenkins
+            }
             steps {
                 echo "2. ⚙️ Building Backend (Maven) and Frontend (NPM)..."
                 
@@ -32,12 +37,10 @@ pipeline {
                 sh 'chmod +x backend/mvnw' 
                 sh 'cd backend && ./mvnw clean install -DskipTests' 
                 
-                // ⭐️ 2. SỬ DỤNG DOCKER IMAGE NODE ĐỂ BUILD FRONTEND ⭐️
-                // Thay vì chạy npm trực tiếp trên Jenkins Agent, chạy trong Container Node
-                docker.image('node:18-alpine').inside { // <-- Node 18 có sẵn NPM
-                    sh 'cd frontend && npm install'
-                    sh 'cd frontend && npm run build'
-                }
+                // ⭐️ 2. BUILD FRONTEND BẰNG NPM ⭐️
+                // Lệnh npm sẽ được tìm thấy vì Nodejs tool đã được khai báo ở trên.
+                sh 'cd frontend && npm install'
+                sh 'cd frontend && npm run build'
             }
         }
 
