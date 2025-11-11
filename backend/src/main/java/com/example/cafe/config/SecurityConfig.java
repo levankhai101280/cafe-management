@@ -96,6 +96,7 @@ public class SecurityConfig {
         // Và thêm IP máy chủ của bạn vào
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:3000",
+            "http://18.234.214.71",
             "http://18.234.214.71:3000" // <--- THÊM DÒNG NÀY
         ));
         // =================================================================
