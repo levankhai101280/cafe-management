@@ -25,8 +25,8 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
-    // Thư mục resources/uploads
-    private static final String UPLOAD_DIR = "D:/kHAIITDEVERLOPER/LAPTRINHWEB2/cafe-management-project/backend/src/main/resources/uploads/";
+    @Autowired
+    private S3StorageService s3StorageService;
 
     // PHƯƠNG THỨC TIỆN ÍCH MỚI: Chuyển đổi Entity sang DTO
     // Khai báo là static để sử dụng trong Stream API và tránh lỗi 'this'
@@ -83,58 +83,41 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Sản phẩm không tồn tại"));
 
-        // Nếu có ảnh → xóa file vật lý
+        // Nếu có ảnh → xóa file trên S3
         if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
-            Path path = Paths.get(UPLOAD_DIR + product.getImageUrl().replace("/uploads/", ""));
-            try {
-                Files.deleteIfExists(path);
-            } catch (IOException e) {
-                throw new RuntimeException("Lỗi xóa file ảnh: " + e.getMessage());
-            }
+            // Gọi service S3 để xóa
+            s3StorageService.deleteFile(product.getImageUrl());
         }
 
-        // Xóa sản phẩm
+        // Xóa sản phẩm khỏi database
         productRepository.deleteById(id);
     }
 
 
     // Lưu sản phẩm kèm ảnh
     public ProductDto saveProductWithImage(String name, Long price, String description, Long categoryId, MultipartFile image) {
-        try {
-            // Tạo thư mục nếu chưa tồn tại
-            File dir = new File(UPLOAD_DIR);
-            if (!dir.exists()) dir.mkdirs();
 
-            // Tạo tên file duy nhất
-            String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
-            Path filePath = Paths.get(UPLOAD_DIR + fileName);
+        // 1. Upload ảnh lên S3 và lấy URL
+        String imageUrl = s3StorageService.uploadFile(image);
 
-            // Lưu ảnh
-            Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        // 2. Tạo Product
+        Product product = new Product();
+        product.setName(name);
+        product.setPrice(price);
+        product.setDescription(description);
 
-            // URL ảnh truy cập từ frontend
-            String imageUrl = "/uploads/" + fileName;
+        Category category = new Category();
+        category.setId(categoryId);
+        product.setCategory(category);
 
-            // Tạo Product
-            Product product = new Product();
-            product.setName(name);
-            product.setPrice(price);
-            product.setDescription(description);
+        // 3. Lưu URL từ S3 vào database
+        product.setImageUrl(imageUrl);
 
-            Category category = new Category();
-            category.setId(categoryId);
-            product.setCategory(category);
+        // 4. Lưu product
+        Product savedProduct = productRepository.save(product);
 
-            product.setImageUrl(imageUrl);
-
-            productRepository.save(product);
-
-            // Trả về DTO
-            return convertToDto(product); 
-
-        } catch (IOException e) {
-            throw new RuntimeException(" Lỗi khi lưu ảnh: " + e.getMessage());
-        }
+        // 5. Trả về DTO
+        return convertToDto(savedProduct);
     }
 
 }
