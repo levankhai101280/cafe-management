@@ -32,7 +32,7 @@ function Header({ auth }) {
         {/* Menu chính */}
         <div className="nav-links">
           <Link to="/" className="nav-link">
-            Trang Chủ
+            Trang Chủsdfgfdsfds
           </Link>
           <Link to="/products" className="nav-link">
             Sản Phẩm
