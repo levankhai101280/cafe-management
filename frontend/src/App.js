@@ -16,6 +16,7 @@ import News from './pages/user/News';
 import SearchPage from './pages/user/SearchPage';
 import Blog from './pages/user/Blog';
 import ProductDetailPage from './pages/user/ProductDetailPage';
+import './styles/app.css';
 
 const useAuth = () => {
     
