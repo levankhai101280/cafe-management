@@ -40,17 +40,17 @@ export default function ProductList() {
                         alt={p.name}
                         className="product-image"
                       />
-                    <h3 className="product-name">{p.name}</h3>
-                    <p className="product-price">
-                      {p.price?.toLocaleString("vi-VN")} VND
-                    </p>
-                    <p className="product-category">
-                      Danh mục: {p.categoryName || "Không có danh mục"}
-                    </p>
-                    <p className="product-description">
-                      {p.description || "Không có mô tả."}
-                    </p>
-                </div>
+                      <h3 className="product-name">{p.name}</h3>
+                      <p className="product-price">
+                        {p.price?.toLocaleString("vi-VN")} VND
+                      </p>
+                      <p className="product-category">
+                        Danh mục: {p.categoryName || "Không có danh mục"}
+                      </p>
+                      <p className="product-description">
+                        {p.description || "Không có mô tả."}
+                      </p>
+                  </div>
                 </Link>
           ))}
         </div>
