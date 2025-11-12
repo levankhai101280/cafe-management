@@ -44,9 +44,11 @@
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start; /* thay space-between bằng flex-start */
+  align-items: center; /* để ảnh nằm giữa */
   height: 100%;
   position: relative;
+  padding-bottom: 16px; /* khoảng cách bên dưới */
 }
 
 .product-card:hover {
@@ -55,12 +57,13 @@
 }
 
 /* ==== 🖼️ IMAGE ==== */
+
 .product-image {
   max-width: 250px;
   object-fit: cover;
   border-bottom: 1px solid #eee;
   transition: transform 0.4s ease;
-  margin: auto;
+  margin: 16px 0 8px 0; /* ảnh vẫn ở giữa */
 }
 
 .product-card:hover .product-image {
@@ -68,31 +71,14 @@
 }
 
 /* ==== 📜 TEXT ==== */
-.product-name {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #222;
-  margin: 16px 16px 8px;
-}
-
-.product-price {
-  color: #c59d5f;
-  font-weight: 600;
-  margin: 0 16px 8px;
-  font-size: 1rem;
-}
-
-.product-category {
-  color: #777;
-  font-size: 0.9rem;
-  margin: 0 16px 8px;
-}
-
+.product-name,
+.product-price,
+.product-category,
 .product-description {
-  color: #555;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  margin: 0 16px 16px;
+  width: 90%;       /* hoặc width: 100% - margin */
+  text-align: left; /* canh trái text */
+  margin-left: 16px; /* căn lề trái */
+  margin-right: 16px;
 }
 
 /* ==== 🔗 LINK RESET ==== */
