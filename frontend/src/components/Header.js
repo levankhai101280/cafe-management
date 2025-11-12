@@ -38,7 +38,7 @@ function Header({ auth }) {
             Sản Phẩm
           </Link>
           <Link to="/blog" className="nav-link">
-            Blog
+            Blogs
           </Link>
           <Link to="/news" className="nav-link">
             Tin Tức
