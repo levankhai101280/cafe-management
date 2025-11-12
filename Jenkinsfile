@@ -9,6 +9,12 @@ pipeline {
         // Sửa lại nếu tên không đúng
         BACKEND_SERVICE = "backend-app"
         FRONTEND_SERVICE = "frontend-app"
+
+        DB_PASSWORD             = credentials('DB_PASSWORD')
+        AWS_REGION              = credentials('AWS_REGION')
+        AWS_S3_BUCKET_NAME      = credentials('AWS_S3_BUCKET_NAME')
+        AWS_ACCESS_KEY_ID       = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY   = credentials('AWS_SECRET_ACCESS_KEY')
     }
 
     stages {
