@@ -1,42 +1,44 @@
 version: '3.9'
 
 services:
-  # 1. Dịch vụ Backend (Spring Boot) - ĐÃ CẬP NHẬT
+  # 1. Dịch vụ Backend (Spring Boot) - SỬ DỤNG PORT 8080 CỤC BỘ
   backend-app:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: cafe-backend
+    # ⚠️ FIX LỖI: ÁNH XẠ PORT 8080 TRONG CONTAINER RA CỔNG 8080 TRÊN SERVER EC2
     ports:
-      - "8081:8080" # Giữ nguyên port 8081 của bạn
+      - "8080:8080" 
+      
+    # ⚠️ FIX LỖI: LOẠI BỎ BIẾN MÔI TRƯỜNG DƯ THỪA ⚠️
+    # Các biến này nên được định nghĩa trực tiếp trong application.properties 
+    # hoặc được quản lý bởi Jenkinsfile khi deploy
     environment:
-      # --- CÁC BIẾN MÔI TRƯỜNG MỚI CHO application.properties ---
+      # Nếu bạn dùng S3, cần đảm bảo các biến này được định nghĩa trên EC2
       - DB_PASSWORD=${DB_PASSWORD}
       - AWS_REGION=${AWS_REGION}
       - AWS_S3_BUCKET_NAME=${AWS_S3_BUCKET_NAME}
-      
-      # ⚠️ SỬA 2 DÒNG NÀY ⚠️
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      
-    # --- CÁC BIẾN CŨ (ĐÃ XÓA) ---
-    # SPRING_DATASOURCE_* đã bị xóa vì Spring tự đọc từ application.properties
-    # APP_UPLOAD_DIR đã bị xóa
     
-    # --- VOLUME (ĐÃ XÓA) ---
-    # volumes: - uploads-data:/app/uploads (Không cần nữa vì dùng S3)
+    # ⚠️ CẦN THÊM DÒNG NÀY ĐỂ KẾT NỐI DB THÀNH CÔNG (nếu cần)
+    # restart: always 
 
-  # 2. Dịch vụ Frontend (React) - GIỮ NGUYÊN
+  # 2. Dịch vụ Frontend (React + Nginx) - SỬ DỤNG PORT 80 CÔNG KHAI
   frontend-app:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: cafe-frontend
+    # ⭐️ FIX LỖI FORTIGUARD: ÁNH XẠ PORT 80 CÔNG KHAI ⭐️
+    # Mọi request đến cổng 80 của EC2 sẽ được chuyển vào container Frontend
     ports:
-      - "3000:80"
+      - "80:80" 
     depends_on:
       - backend-app
-
-# Định nghĩa volumes (ĐÃ XÓA)
-# volumes:
-#  uploads-data: {}
+      
+# Định nghĩa network để các service giao tiếp với nhau
+networks:
+  default:
+    name: cafe-app-network
