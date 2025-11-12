@@ -44,7 +44,8 @@
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  float: left;
+  justify-content: flex-start; /* thay space-between bằng flex-start */
+  align-items: center; /* để ảnh nằm giữa */
   height: 100%;
   position: relative;
   padding-bottom: 16px; /* khoảng cách bên dưới */
@@ -75,7 +76,7 @@
 .product-category,
 .product-description {
   width: 90%;       /* hoặc width: 100% - margin */
-  text-align: left; /* canh trái text */
+  float: left; /* canh trái text */
   margin-left: 16px; /* căn lề trái */
   margin-right: 16px;
 }
