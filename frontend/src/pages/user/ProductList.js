@@ -36,14 +36,10 @@ export default function ProductList() {
                 >
                     <div className="product-card">
                       <img
-                        src={
-                            p.imageUrl
-                            ? `http://18.234.214.71:8081${p.imageUrl}`
-                            : "https://via.placeholder.com/200x150?text=No+Image"
-                        }
-                        alt={p.name}
-                        className="product-image"
-                    />
+                        src={p.imageUrl || "https://via.placeholder.com/200x150?text=No+Image"}
+                        alt={p.name}
+                        className="product-image"
+                      />
                     <h3 className="product-name">{p.name}</h3>
                     <p className="product-price">
                       {p.price?.toLocaleString("vi-VN")} VND

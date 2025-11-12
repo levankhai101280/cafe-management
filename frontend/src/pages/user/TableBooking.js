@@ -186,7 +186,7 @@ function TableBooking() {
                 {products.map(p => (
                   <li key={p.id} className="menu-item">
                     <img
-                      src={p.imageUrl ? `http://localhost:8080${p.imageUrl}` : "https://via.placeholder.com/80x60?text=No+Image"}
+                      src={p.imageUrl || "https://via.placeholder.com/80x60?text=No+Image"}
                       alt={p.name}
                     />
                     <span>{p.name} - {p.price.toLocaleString('vi-VN')} VND</span>
