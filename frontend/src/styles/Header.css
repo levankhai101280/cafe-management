@@ -8,12 +8,12 @@
 }
 
 .app-header {
-  background: linear-gradient(135deg, #219aca, #219aca);
+  background: linear-gradient(135deg, #0a0709, #219aca);
   color: #fff;
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px gray;
   font-family: "Poppins", sans-serif;
 }
 
