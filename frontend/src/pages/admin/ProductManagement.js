@@ -305,7 +305,7 @@ export default function ProductManagement() {
               <tr key={p.id}>
                 <td style={tdStyle}>
                   <img
-                    src={`http://18.234.214.71:8081${p.imageUrl}`}
+                    src={p.imageUrl}git 
                     alt={p.name}
                     style={productImageStyle}
                   />
